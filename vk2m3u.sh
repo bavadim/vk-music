@@ -1,12 +1,13 @@
 #!/bin/bash
 
 base_url='https://api.vk.com/method';
-token=$VK_TOKEN;
+token=${VK_TOKEN};
 
 getMusicList() {
-  local method="$1"; shift;
+  local method_part="$1"; shift;
   local token="$1"; shift;
-  local xml=`curl -s "${base_url}/audio.${method}.xml?access_token=$token" | sed "s/<?xml version=\"1.0\" encoding=\"utf-8\"?>/ /g"` 2>&1
+  local url="${base_url}/audio.${method_part}&access_token=${token}"
+  local xml=`curl -s ${url} | sed "s/<?xml version=\"1.0\" encoding=\"utf-8\"?>/ /g"` 2>&1
   local xslt_xml="<?xml version=\"1.0\" encoding=\"utf-8\"?>
         <?xml-stylesheet type=\"text/xml\" href=\"#stylesheet\"?>
         <!DOCTYPE doc [
@@ -35,5 +36,32 @@ getMusicList() {
   echo $xslt_xml | xsltproc -
 }
 
-if [ -z "$1" ]; then method="get"; else method=$1; fi
-getMusicList $method $token;
+error() {
+  echo "Usage: vk2m3u [COMMAND] [ARGUMENT]";
+  echo "Available commands: get, getRecommendations, search";
+  exit 1;
+}
+
+method=$1; shift;
+arg=$1; shift;
+
+case "$method" in
+"get")
+  if [[ -z  $arg  ]]; then method_part="${method}.xml?"; else method_part="${method}.xml?owner_id=${arg}"; fi;
+  ;;
+"getRecommendations")
+  if [[ -z  $arg  ]]; then method_part="${method}.xml?"; else method_part="${method}.xml?user_id=${arg}"; fi;
+  ;;
+"search")
+  if [[ -z  $arg  ]]; then error; else  method_part="${method}.xml?q=${arg}"; fi;
+  method_part="${method}.xml?q=${arg}"
+  ;;
+"")
+  method_part="get.xml?"
+  ;;
+*)
+  error;
+  ;;
+esac
+
+getMusicList ${method_part} ${token};
