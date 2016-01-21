@@ -1,12 +1,12 @@
 #!/bin/bash
 
-save_folder=$1; shift;
-
+base_url='https://api.vk.com/method';
 token=$VK_TOKEN;
 
 getMusicList() {
+  local method="$1"; shift;
   local token="$1"; shift;
-  local xml=`curl -s "https://api.vk.com/method/audio.get.xml?access_token=$token" | sed "s/<?xml version=\"1.0\" encoding=\"utf-8\"?>/ /g"` 2>&1
+  local xml=`curl -s "${base_url}/audio.${method}.xml?access_token=$token" | sed "s/<?xml version=\"1.0\" encoding=\"utf-8\"?>/ /g"` 2>&1
   local xslt_xml="<?xml version=\"1.0\" encoding=\"utf-8\"?>
         <?xml-stylesheet type=\"text/xml\" href=\"#stylesheet\"?>
         <!DOCTYPE doc [
@@ -35,4 +35,5 @@ getMusicList() {
   echo $xslt_xml | xsltproc -
 }
 
-getMusicList $token;
+if [ -z "$1" ]; then method="get"; else method=$1; fi
+getMusicList $method $token;
