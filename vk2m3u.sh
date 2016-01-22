@@ -6,7 +6,7 @@ token=${VK_TOKEN};
 getMusicList() {
   local method_part="$1"; shift;
   local token="$1"; shift;
-  local url="${base_url}/audio.${method_part}&access_token=${token}"
+  local url="${base_url}/audio.${method_part}&access_token=${token}&count=6000"
   local xml=`curl -s ${url} | sed "s/<?xml version=\"1.0\" encoding=\"utf-8\"?>/ /g"` 2>&1
   local xslt_xml="<?xml version=\"1.0\" encoding=\"utf-8\"?>
         <?xml-stylesheet type=\"text/xml\" href=\"#stylesheet\"?>
@@ -20,10 +20,10 @@ getMusicList() {
 
                   <xsl:template match=\"/\">
                     <xsl:for-each select=\"doc/response/audio\"> 
-			<xsl:text>#EXTINF:</xsl:text><xsl:value-of select=\"duration\"/>,<xsl:value-of select=\"artist\"/> - <xsl:value-of select=\"title\"/>
-			<xsl:text>&#10;</xsl:text>
-			<xsl:value-of select=\"url\"/> 
-			<xsl:text>&#10;</xsl:text>
+                      <xsl:text>#EXTINF:</xsl:text><xsl:value-of select=\"duration\"/>,<xsl:value-of select=\"artist\"/> - <xsl:value-of select=\"title\"/>
+                      <xsl:text>&#10;</xsl:text>
+                      <xsl:value-of select=\"url\"/> 
+                      <xsl:text>&#10;</xsl:text>
                     </xsl:for-each>
                   </xsl:template>
                 </xsl:stylesheet>
