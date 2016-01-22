@@ -43,7 +43,7 @@ error() {
 }
 
 method=$1; shift;
-arg=$1; shift;
+arg=`echo ${1} | sed -E "s/ +/\+/g"` 2>&1; shift;
 
 case "$method" in
 "get")
@@ -64,4 +64,4 @@ case "$method" in
   ;;
 esac
 
-getMusicList ${method_part} ${token};
+getMusicList "${method_part}" ${token};
